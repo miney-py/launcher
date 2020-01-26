@@ -9,8 +9,8 @@ if "MINEYDISTDIR" in os.environ:
     dist_root = os.environ["MINEYDISTDIR"]
     launcher_root = os.path.dirname(os.path.realpath(__file__))
 else:
-    dist_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-    launcher_root = os.path.dirname(os.path.realpath(__file__))
+    dist_root = os.getcwd()
+    launcher_root = os.path.join(dist_root, "Miney")
 
 
 def create_tool_tip(widget, text, delay=500):
@@ -187,7 +187,7 @@ def start_idle():
     subprocess.Popen(
         [os.path.join(dist_root, "Python", "pythonw.exe"),
          os.path.join(dist_root, "Python", "Lib", "idlelib", "idle.pyw"),
-         "-s", "-r", "quickstart.py"]
+         "-s", "-r", os.path.join(launcher_root, "quickstart.py")]
     )
 
 
