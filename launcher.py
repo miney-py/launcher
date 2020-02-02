@@ -1,16 +1,27 @@
 import tkinter as tk
+from tkinter import messagebox
+import traceback
 import subprocess
 import os
-import platform
 from idlelib.tooltip import Hovertip
 import webbrowser
+import miney
+
+
+# Exception handling
+def show_error(self, *args):
+    err = traceback.format_exception(*args)
+    messagebox.showerror('Exception', err)
+
+
+tk.Tk.report_callback_exception = show_error
+
+launcher_root = os.path.dirname(os.path.realpath(__file__))
 
 if "MINEYDISTDIR" in os.environ:
     dist_root = os.environ["MINEYDISTDIR"]
-    launcher_root = os.path.dirname(os.path.realpath(__file__))
 else:
     dist_root = os.getcwd()
-    launcher_root = os.path.join(dist_root, "Miney")
 
 
 def create_tool_tip(widget, text, delay=500):
@@ -99,6 +110,18 @@ class Application(tk.Frame):
             font='Helvetica 10 bold'
         )
 
+        button_doc_minetest = tk.Button(
+            self.master,
+            text="Minetest",
+            fg="#45678F",
+            command=open_doc_minetest,
+            bg="#EDBA68",
+            relief=tk.FLAT,
+            padx=10,
+            pady=5,
+            font='Helvetica 10 bold'
+        )
+
         button_doc_python = tk.Button(
             self.master,
             text="Python",
@@ -132,9 +155,13 @@ class Application(tk.Frame):
         create_tool_tip(button_start_minetest, "Start Minetest with Mainmenu")
         create_tool_tip(button_start_idle, "Start Python IDLE IDE")
 
-        button_doc_miney.place(relx=0.5, y=230, x=65, width=200)
-        button_doc_python.place(relx=0.5, y=280, x=65, width=200)
-        button_doc_examples.place(relx=0.5, y=330, x=65, width=200)
+        button_doc_row_start = 215
+        button_row_spacing = 46
+
+        button_doc_miney.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 0, x=65, width=200)
+        button_doc_minetest.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 1, x=65, width=200)
+        button_doc_python.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 2, x=65, width=200)
+        button_doc_examples.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 3, x=65, width=200)
         create_tool_tip(button_doc_miney, "Open Miney documentation in your webbrowser")
         create_tool_tip(button_doc_python, "Open Python documentation in your webbrowser")
         create_tool_tip(button_doc_examples, "Open examples folder in explorer")
@@ -146,41 +173,11 @@ def quickstart():
 
 
 def start_miney_game():
-    seed = "746036489947438842"
-
-    # find good seeds
-    # import random
-    # import shutil
-    # seed = str(random.randint(100000000, 999999999)) + str(random.randint(100000000, 999999999))
-    # try:
-    #     shutil.rmtree(os.path.join(dist_root, "Minetest", "worlds", "miney"))
-    # except FileNotFoundError:
-    #     pass
-    # print("Seed:", seed)
-
-    world_conf = "enable_damage = true\ncreative_mode = false\ngameid = minetest\nplayer_backend = sqlite3\n" \
-                 "backend = sqlite3\nauth_backend = sqlite3\nload_mod_mineysocket = true\nserver_announce = false\n"
-
-    if not os.path.isdir(os.path.join(dist_root, "Minetest", "worlds", "miney")):
-        if not os.path.isdir(os.path.join(dist_root, "Minetest", "worlds")):
-            os.mkdir(os.path.join(dist_root, "Minetest", "worlds"))
-        os.mkdir(os.path.join(dist_root, "Minetest", "worlds", "miney"))
-        with open(os.path.join(dist_root, "Minetest", "worlds", "miney", "world.mt"), "w") as world_config:
-            world_config.write(world_conf)
-
-        with open(os.path.join(dist_root, "Minetest", "worlds", "miney", "map_meta.txt"), "w") as world_meta:
-            world_meta.write(f"seed = {seed}")
-    if platform.system() == 'Windows':
-        subprocess.Popen(
-            f"{dist_root}/Minetest/bin/minetest.exe "
-            f"--go --world \"{dist_root}/Minetest/worlds/miney\" --name Player --address \"\""
-        )
+    miney.run_miney_game()
 
 
 def start_minetest():
-    subprocess.Popen(
-        f"{dist_root}/Minetest/bin/minetest.exe"
-    )
+    miney.run_minetest()
 
 
 def start_idle():
@@ -195,6 +192,10 @@ def open_doc_miney():
     webbrowser.open("https://miney.readthedocs.io/en/latest/")
 
 
+def open_doc_minetest():
+    webbrowser.open("https://wiki.minetest.net/Main_Page")
+
+
 def open_doc_python():
     webbrowser.open("https://docs.python.org/3/")
 
@@ -206,7 +207,7 @@ def open_doc_examples():
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Miney Launcher")
+    root.title("Miney Launcher - " + miney.__version__)
     root.iconbitmap(os.path.join(launcher_root, "res", "miney-logo-hires.ico"))
     root.geometry("707x500")
     root.resizable(False, False)
