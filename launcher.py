@@ -163,6 +163,7 @@ class Application(tk.Frame):
         button_doc_python.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 2, x=65, width=200)
         button_doc_examples.place(relx=0.5, y=button_doc_row_start + button_row_spacing * 3, x=65, width=200)
         create_tool_tip(button_doc_miney, "Open Miney documentation in your webbrowser")
+        create_tool_tip(button_doc_minetest, "Open Minetest documentation in your webbrowser")
         create_tool_tip(button_doc_python, "Open Python documentation in your webbrowser")
         create_tool_tip(button_doc_examples, "Open examples folder in explorer")
 
